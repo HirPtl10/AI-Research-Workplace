@@ -1,0 +1,66 @@
+generator client {
+    provider = "prisma-client"
+    output   = "../generated/prisma"
+}
+
+datasource db {
+    provider = "postgresql"
+}
+
+model User {
+    id       String    @id @default(uuid())
+    username String @unique
+    password String
+    projects Project[]
+}
+
+model Project {
+    id String @id @default(uuid())
+    name String 
+    ownerId String
+    owner User @relation(fields: [ownerId], references: [id])
+    departments Department[]
+    summaries Summary[]
+}
+
+model Conversation {
+    id Int @id @default(autoincrement())
+    departmentId String @unique
+    department Department @relation(fields: [departmentId], references: [id])
+    messages Message[]
+}
+
+model Department {
+    id String @id @default(uuid())
+    projectId String
+    project Project @relation(fields: [projectId], references: [id])
+    name String
+    isGeneral Boolean @default(false)
+    conversation Conversation?
+    documents Document[]
+}
+
+model Document {
+    id Int @id @default(autoincrement())
+    departmentId String
+    department Department @relation(fields: [departmentId], references: [id])
+    filename String
+    createdAt DateTime @default(now())
+}
+
+model Message {
+    id Int @id @default(autoincrement())
+    content String
+    role String
+    createdAt DateTime @default(now())
+    conversationId Int
+    conversation Conversation @relation(fields: [conversationId], references: [id])
+}
+
+model Summary {
+    id Int @id @default(autoincrement())
+    content String
+    createdAt DateTime @default(now())
+    projectId String
+    project Project @relation(fields: [projectId], references: [id])
+}
