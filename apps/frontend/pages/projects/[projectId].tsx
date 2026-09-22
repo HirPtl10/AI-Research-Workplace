@@ -1,69 +1,76 @@
-import axios from "axios";
+import { api } from "../../lib/api";
 import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
-
+import CreateDepartment from "../../components/DepartmentComponents/CreateDepartment";
+import DepartmentList from "../../components/DepartmentComponents/DepartmentList";
 export default function ProjectPage() {
-    let [formData, setFormData] = useState({
-        name: ""
-    })
+
     const router = useRouter();
-    let [deparmentList, setDepartmentList] = useState<any[]>([]);
     const { projectId } = router.query;
+    const [departmentList, setDepartmentList] = useState<any[]>([]);
+
     async function getDepartment() {
         try {
-            let res = await axios.get(`http://localhost:3001/getDepartments/${projectId}`,
-                {
-                    withCredentials: true
-                }
-            )
-
+            const res = await api.get(`/getDepartments/${projectId}`);
             setDepartmentList(res.data);
+            console.log(res);
         } catch (err) {
             console.log(err);
         }
     }
-
-    async function createDepartment() {
+    async function deleteDepartment(id: string) {
+        console.log("Id to be deleted: " + id);
         try {
-            let res = await axios.post(`http://localhost:3001/createDepartment/${projectId}`, {
-                name: formData.name
-            }, 
-        {
-            withCredentials: true
-        })
-
-        setDepartmentList(prev => [
-            ...prev,
-            res.data
-        ])
-        } catch(err) {
+            await api.delete(`deleteDepartment/${id}`);
+            setDepartmentList(prev => prev.filter(d => d.id !== id));
+        } catch (err) {
             console.log(err.response.data.message);
         }
     }
 
-    function handleChange(e) {
-        let { name, value } = e.target;
+    async function createDepartment(name: string) {
+        console.log("hee")
+        try {
+            const res = await api.post(
+                `/createDepartment/${projectId}`,
+                {
+                    name: name
+                },
+            );
 
-        setFormData({
-            ...formData,
-            [name]: value
-        })
+            setDepartmentList(prev => [
+                ...prev,
+                res.data
+            ]);
+            console.log(res.data)
+
+        } catch (err: any) {
+            console.log(err.response?.data?.message);
+        }
     }
+
     useEffect(() => {
         if (!router.isReady) return;
-    
+
         getDepartment();
     }, [router.isReady, projectId]);
+
     return (
-        <div>
-            <input name="name" value={formData.deptName} onChange={handleChange} placeholder="Enter new dept name"></input>
-            <button onClick={createDepartment}>Create Dept</button> <br></br><hr></hr>
-            {
-            deparmentList.map(department => (
-                <div key={department.id}>
-                    {department.name}    
-                </div>
-            ))}
-        </div>
-    )
+        <aside className="flex h-screen w-72 flex-col bg-[#171717] text-white">
+
+            {/* Header */}
+            <div className="px-4 py-5">
+                <h1 className="text-lg font-semibold">
+                    Departments
+                </h1>
+            </div>
+
+            {/* Create department */}
+            <CreateDepartment onCreate={createDepartment} />
+
+            {/* Department list */}
+            <DepartmentList departments={departmentList} onDelete={deleteDepartment} />
+
+        </aside>
+    );
 }

@@ -22,6 +22,7 @@ export let middleware = async (req: NextRequest) => {
 export const config = {
     matcher: [
         '/dashboard',
-        '/logout'
+        '/logout',
+        '/projects/:path*'
     ]
 }

@@ -5,7 +5,7 @@ import bcrypt from "bcrypt"
 import jwt from "jsonwebtoken"
 import { client } from "@repo/db"
 import cookieParser from "cookie-parser"
-import { SignInSchema, SignUpSchema } from "@repo/common-types"
+import { SignInSchema, SignUpSchema, createProjectSchema, createDepartmentSchema } from "@repo/common-types"
 import { HandleError } from "./ErrorHandler"
 import { errorHandler } from "./middleware/errorMiddleware"
 import { authMiddleware } from "./middleware/auth"
@@ -151,12 +151,16 @@ app.post("/logout", authMiddleware, (req, res) => {
 
 app.post("/createProject", authMiddleware, async (req, res) => {
     let userId = req.id;
-    let projectName = req.body.projectName;
-
+    let name = req.body.name;
+    let { success } = createProjectSchema.safeParse(req.body);
+    console.log("new project req")
+    if(!success) {
+        throw new HandleError("Incorrect format for project name", 403);
+    }
     try {
     let newProject = await client.project.create({
         data: {
-            name: projectName,
+            name: name,
             ownerId: userId
         }
     })
@@ -202,10 +206,15 @@ app.post("/createDepartment/:projectId", authMiddleware, async (req, res) => {
 
     let projectId = req.params.projectId;
     let name = req.body.name;
-
+    let { success } = createDepartmentSchema.safeParse(req.body);
+    console.log('received req')
+    if(!success) {
+        throw new HandleError("Incorrect format for department name", 403);
+    }
     try {
         let newDepartment = await client.department.create({
             data: {
+                // @ts-ignore
                 projectId: projectId,
                 name: name,
                 isGeneral: false
@@ -213,7 +222,8 @@ app.post("/createDepartment/:projectId", authMiddleware, async (req, res) => {
         })
 
         res.json({
-           name: newDepartment.name
+           name: newDepartment.name,
+           id: newDepartment.id
         })
     } catch(err) {
         console.log(err);
@@ -229,6 +239,7 @@ app.get("/getDepartments/:projectId", authMiddleware, async (req, res, next) => 
         
         let departments = await client.department.findMany({
             where: {
+                //@ts-ignore
                 projectId: projectId
             }
         })
@@ -244,6 +255,27 @@ app.get("/getDepartments/:projectId", authMiddleware, async (req, res, next) => 
         })
     }
 })
+
+app.delete("/deleteDepartment/:departmentId", authMiddleware, async (req, res, next) => {
+    console.log("received req to dlt");
+    let id = req.params.departmentId;
+    console.log(id);
+    try {
+        await client.department.delete({
+            where: {
+                //@ts-ignore
+                id: id
+            }
+        })
+        console.log("deleted!");
+        return res.json({
+            message: "deleted"
+        })
+    } catch(err) {
+        next(err);
+    } 
+})
+
 app.use(errorHandler);
 
 app.listen(3001, () => {

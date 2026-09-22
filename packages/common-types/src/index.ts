@@ -9,3 +9,11 @@ export const SignInSchema = z.object({
     username: z.string().min(3).max(20),
     password: z.string().min(5).max(12)
 })
+
+export const createProjectSchema = z.object({
+    name: z.string().min(3).max(15)
+})
+
+export const createDepartmentSchema = z.object({
+    name: z.string().min(3).max(15)
+})
