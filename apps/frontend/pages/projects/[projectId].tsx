@@ -3,11 +3,19 @@ import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
 import CreateDepartment from "../../components/DepartmentComponents/CreateDepartment";
 import DepartmentList from "../../components/DepartmentComponents/DepartmentList";
+import ChatRoom from "../../components/ChatComponents/ChatRoom";
 export default function ProjectPage() {
 
     const router = useRouter();
     const { projectId } = router.query;
     const [departmentList, setDepartmentList] = useState<any[]>([]);
+    const [selectedDept, setSelectedDept] = useState({
+        id: "",
+        name: "",
+        conversation: {
+            id: ""
+        }
+    }) || null;
 
     async function getDepartment() {
         try {
@@ -48,15 +56,14 @@ export default function ProjectPage() {
             console.log(err.response?.data?.message);
         }
     }
-
     useEffect(() => {
         if (!router.isReady) return;
-
         getDepartment();
     }, [router.isReady, projectId]);
 
     return (
-        <aside className="flex h-screen w-72 flex-col bg-[#171717] text-white">
+        <div className="flex h-screen">
+        <aside className="flex h-screen w-72 shrink-0 flex-col bg-[#171717] text-white">
 
             {/* Header */}
             <div className="px-4 py-5">
@@ -65,12 +72,12 @@ export default function ProjectPage() {
                 </h1>
             </div>
 
-            {/* Create department */}
             <CreateDepartment onCreate={createDepartment} />
-
-            {/* Department list */}
-            <DepartmentList departments={departmentList} onDelete={deleteDepartment} />
-
+            <DepartmentList departments={departmentList} onDelete={deleteDepartment} setSelect={setSelectedDept}/>
         </aside>
+        <div>
+            { selectedDept && <ChatRoom department={selectedDept}/> }
+        </div>
+        </div>
     );
 }

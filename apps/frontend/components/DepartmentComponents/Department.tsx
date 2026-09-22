@@ -1,13 +1,16 @@
+import Link from "next/link"
+
 type Department = {
     id: string,
-    name: string
+    name: string,
+    conversationId: number
 }
 
-export default function Department({ department, onDelete }: { department: Department, onDelete: Function }) {
+export default function Department({ department, onDelete, setSelect }: { department: Department, onDelete: Function, setSelect: Function }) {
 
     return (
         <>
-            <div
+            <div 
                 key={department.id}
                 className="
                 group
@@ -22,7 +25,7 @@ export default function Department({ department, onDelete }: { department: Depar
             >
 
                 {/* Left side */}
-                <div className="flex min-w-0 flex-1 items-center">
+                <div className="flex min-w-0 flex-1 items-center" onClick={() => setSelect(department)}>
 
                     {/* Department icon */}
                     <span
@@ -38,6 +41,7 @@ export default function Department({ department, onDelete }: { department: Depar
                     "
                     >
                         {department.name.charAt(0).toUpperCase()}
+
                     </span>
 
                     {/* Department name */}

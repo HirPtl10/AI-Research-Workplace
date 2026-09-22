@@ -5,7 +5,7 @@ import bcrypt from "bcrypt"
 import jwt from "jsonwebtoken"
 import { client } from "@repo/db"
 import cookieParser from "cookie-parser"
-import { SignInSchema, SignUpSchema, createProjectSchema, createDepartmentSchema } from "@repo/common-types"
+import { SignInSchema, SignUpSchema, createProjectSchema, createDepartmentSchema, createMessageSchema } from "@repo/common-types"
 import { HandleError } from "./ErrorHandler"
 import { errorHandler } from "./middleware/errorMiddleware"
 import { authMiddleware } from "./middleware/auth"
@@ -154,30 +154,30 @@ app.post("/createProject", authMiddleware, async (req, res) => {
     let name = req.body.name;
     let { success } = createProjectSchema.safeParse(req.body);
     console.log("new project req")
-    if(!success) {
+    if (!success) {
         throw new HandleError("Incorrect format for project name", 403);
     }
     try {
-    let newProject = await client.project.create({
-        data: {
-            name: name,
-            ownerId: userId
-        }
-    })
+        let newProject = await client.project.create({
+            data: {
+                name: name,
+                ownerId: userId
+            }
+        })
 
-    let generelDept = await client.department.create({
-        data: {
-            name: "General",
-            projectId: newProject.id,
-            isGeneral: true
-        }
-    })
+        let generelDept = await client.department.create({
+            data: {
+                name: "General",
+                projectId: newProject.id,
+                isGeneral: true
+            }
+        })
 
-    return res.json({
-        name: newProject.name,
-        id: newProject.id
-    })
-    } catch(e) {
+        return res.json({
+            name: newProject.name,
+            id: newProject.id
+        })
+    } catch (e) {
         return res.status(403).json({
             message: "Failed to create a new Projct, Please try again"
         })
@@ -187,7 +187,7 @@ app.post("/createProject", authMiddleware, async (req, res) => {
 app.get("/getProjects", authMiddleware, async (req, res, next) => {
     let userId = req.id;
     try {
-        let names  = await client.project.findMany({
+        let names = await client.project.findMany({
             where: {
                 ownerId: userId
             }
@@ -197,7 +197,7 @@ app.get("/getProjects", authMiddleware, async (req, res, next) => {
             name: project.name,
             id: project.id
         })));
-    } catch(e) {
+    } catch (e) {
         next(e);
     }
 })
@@ -208,7 +208,7 @@ app.post("/createDepartment/:projectId", authMiddleware, async (req, res) => {
     let name = req.body.name;
     let { success } = createDepartmentSchema.safeParse(req.body);
     console.log('received req')
-    if(!success) {
+    if (!success) {
         throw new HandleError("Incorrect format for department name", 403);
     }
     try {
@@ -221,11 +221,17 @@ app.post("/createDepartment/:projectId", authMiddleware, async (req, res) => {
             }
         })
 
-        res.json({
-           name: newDepartment.name,
-           id: newDepartment.id
+        let newConversation = await client.conversation.create({
+            data: {
+                departmentId: newDepartment.id
+            }
         })
-    } catch(err) {
+        res.json({
+            name: newDepartment.name,
+            id: newDepartment.id,
+            conversation: newConversation
+        })
+    } catch (err) {
         console.log(err);
         res.status(403).json({
             message: "Failed to create department"
@@ -236,20 +242,22 @@ app.post("/createDepartment/:projectId", authMiddleware, async (req, res) => {
 app.get("/getDepartments/:projectId", authMiddleware, async (req, res, next) => {
     try {
         let projectId = req.params.projectId;
-        
+
         let departments = await client.department.findMany({
             where: {
                 //@ts-ignore
                 projectId: projectId
+            }, 
+            select: {
+                id: true,
+                name: true,
+                conversation: true
             }
         })
 
-        res.json(departments.map(department => ({
-            name: department.name,
-            id: department.id
-        })))
-        
-    } catch(err) {
+        res.json(departments)
+
+    } catch (err) {
         res.status(403).json({
             message: "Failed to fetch the deparments"
         })
@@ -258,22 +266,90 @@ app.get("/getDepartments/:projectId", authMiddleware, async (req, res, next) => 
 
 app.delete("/deleteDepartment/:departmentId", authMiddleware, async (req, res, next) => {
     console.log("received req to dlt");
-    let id = req.params.departmentId;
+    let id  = req.params.departmentId;
     console.log(id);
     try {
+
+        const department = await client.department.findUnique({
+            where: {
+                id
+            },
+            include: {
+                conversation: true
+            }
+        });
+
+        if (!department) {
+            return res.status(404).json({
+                message: "Department not found"
+            });
+        }
+
+        await client.conversation.delete({
+            where: {
+                id: department.conversation.id
+            }
+        });
+
         await client.department.delete({
             where: {
-                //@ts-ignore
-                id: id
+                id
             }
-        })
+        });
+
         console.log("deleted!");
         return res.json({
             message: "deleted"
         })
-    } catch(err) {
+    } catch (err) {
+        console.log(err);
         next(err);
-    } 
+    }
+})
+
+app.post("/createMessage/:conversationId", authMiddleware, async (req, res, next) => {
+    console.log("recveived req for creation message")
+    let { success } =  createMessageSchema.safeParse(req.body);
+    if(!success) {
+        throw new HandleError("Invalid message content format", 404);
+    }
+    try {
+        let message = await client.message.create({
+            data: {
+                content: req.body.content,
+                conversationId: Number(req.params.conversationId),
+                role: req.body.role
+            },
+            select: {
+                content: true,
+                id: true,
+                conversationId: true,
+                role: true
+            }
+        })
+
+        return res.json(message)
+    } catch(err) {
+        next(err)
+    }
+})
+
+app.get("getMessages/:conversationId", authMiddleware, async(req, res, next) => {
+    console.log("HAHAHAHA" + req.params.conversationId);
+    try {
+        let messages = client.conversation.findMany({
+            where: {
+                id: Number(req.params.conversationId)
+            }, 
+            select: {
+                messages: true
+            }
+        })
+
+        return res.json(messages);
+    } catch (err) {
+        next(err);
+    }
 })
 
 app.use(errorHandler);
