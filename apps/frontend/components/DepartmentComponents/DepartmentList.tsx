@@ -1,6 +1,5 @@
-import { useState } from "react";
 import Department from "./Department"
-export default function DepartmentList({ departments, onDelete, setSelect }) {
+export default function DepartmentList({ departments, onDelete, setSelect, selectedDept }) {
 
     return (
         <div className="mt-6 flex-1 overflow-y-auto px-3">
@@ -12,7 +11,7 @@ export default function DepartmentList({ departments, onDelete, setSelect }) {
             <div className="space-y-1">
 
                 {departments.map(department => (
-                    <Department department={department} onDelete={onDelete} setSelect={setSelect} />
+                    <Department department={department} onDelete={onDelete} setSelect={setSelect} selected={selectedDept?.id === department.id} />
                 ))}
 
             </div>

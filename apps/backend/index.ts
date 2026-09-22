@@ -272,6 +272,7 @@ app.delete("/deleteDepartment/:departmentId", authMiddleware, async (req, res, n
 
         const department = await client.department.findUnique({
             where: {
+                //@ts-ignore
                 id
             },
             include: {
@@ -287,12 +288,14 @@ app.delete("/deleteDepartment/:departmentId", authMiddleware, async (req, res, n
 
         await client.conversation.delete({
             where: {
+                //@ts-ignore
                 id: department.conversation.id
             }
         });
 
         await client.department.delete({
             where: {
+                //@ts-ignore
                 id
             }
         });
@@ -334,10 +337,10 @@ app.post("/createMessage/:conversationId", authMiddleware, async (req, res, next
     }
 })
 
-app.get("getMessages/:conversationId", authMiddleware, async(req, res, next) => {
+app.get("/getMessages/:conversationId", authMiddleware, async(req, res, next) => {
     console.log("HAHAHAHA" + req.params.conversationId);
     try {
-        let messages = client.conversation.findMany({
+        let messages = await client.conversation.findUnique({
             where: {
                 id: Number(req.params.conversationId)
             }, 
@@ -345,8 +348,7 @@ app.get("getMessages/:conversationId", authMiddleware, async(req, res, next) => 
                 messages: true
             }
         })
-
-        return res.json(messages);
+        return res.json(messages?.messages ?? []);
     } catch (err) {
         next(err);
     }

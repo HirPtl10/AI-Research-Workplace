@@ -3,17 +3,16 @@ import { api } from "../../lib/api";
 import ChatRoomClient from "./ChatRoomClient";
 
 export default function ChatRoom({ department }) {
-    let [messages, setMessages] = useState({});
+    let [messages, setMessages] = useState([]);
     useEffect(() => {
         fetchMessages()
-    }, [])
+    }, [department])
     async function fetchMessages() {
         try {
-            console.log("I want to print this" + department.id)
+            console.log("I want to print this" + department.conversation.id)
             let res = await api.get(`/getMessages/${department.conversation.id}`)
-            setMessages(res.data)
+            setMessages(res.data);
         } catch(err) {
-            console.log('error fetching')
             console.log(err.response.data.message);
         }
     }
@@ -24,13 +23,20 @@ export default function ChatRoom({ department }) {
                 content: content,
                 role: role
             })
-            console.log("this is what i wanted to print" + messages);
+
+            //@ts-ignore
+            setMessages(prev => [
+                ...prev,
+                res.data
+            ])
         } catch(err) {
             console.log(err);
         }
     }
 
     return (
-        <ChatRoomClient messages={messages} department={department} onCreate={createMessage}/>
+        <div className="h-full min-h-0">
+            <ChatRoomClient messages={messages} department={department} onCreate={createMessage}/>
+        </div>
     )
 }

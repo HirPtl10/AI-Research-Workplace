@@ -1,27 +1,28 @@
-import Link from "next/link"
-
 type Department = {
     id: string,
     name: string,
     conversationId: number
 }
 
-export default function Department({ department, onDelete, setSelect }: { department: Department, onDelete: Function, setSelect: Function }) {
+export default function Department({ department, onDelete, setSelect, selected }: { department: Department, onDelete: Function, setSelect: Function, selected?: boolean }) {
 
     return (
         <>
             <div 
                 key={department.id}
-                className="
+                className={`
                 group
                 flex w-full
                 items-center
                 rounded-lg
                 px-3 py-2.5
-                text-sm text-gray-300
+                text-sm
                 transition
-                hover:bg-[#2a2a2a]
-            "
+                ${selected
+                    ? "bg-[#2a2a2a] text-white"
+                    : "text-gray-300 hover:bg-[#2a2a2a]"
+                }
+            `}
             >
 
                 {/* Left side */}
