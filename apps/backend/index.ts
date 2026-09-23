@@ -9,9 +9,9 @@ import { SignInSchema, SignUpSchema, createProjectSchema, createDepartmentSchema
 import { HandleError } from "./ErrorHandler"
 import { errorHandler } from "./middleware/errorMiddleware"
 import { authMiddleware } from "./middleware/auth"
-import { GoogleGenAI } from "@google/genai"
+import { Ollama } from 'ollama'
 import { asyncWrapProviders } from "async_hooks"
-import { generateResponse } from "./generateAI"
+// import { generateResponse } from "./generateAI"
 
 const app = express();
 
@@ -333,13 +333,36 @@ app.post("/createMessage/:conversationId", authMiddleware, async (req, res, next
                 role: true
             }
         })
-        const aiContent = await generateResponse(message.content);
 
-        console.log("AI response generated:", aiContent);
+        console.log("MESSAGE CREATED")
+        // const aiContent = await generateResponse(message.content);
 
+        // console.log("AI response generated:", aiContent);
+
+        const ollama = new Ollama({
+            host: 'https://ollama.com',
+            headers: { Authorization: 'Bearer ' + process.env.OLLAMA_API_KEY },
+          })
+
+        const response = await ollama.chat({
+            model: 'gpt-oss:20b',
+            messages: [{ role: 'user', content: message.content }],
+            stream: true,
+        })
+        res.setHeader("Content-Type", "text/plain; charset=utf-8");
+        res.setHeader("Transfer-Encoding", "chunked");
+        let answer = "";
+        for await(const part of response) {
+            let chunk = part.message.content;
+            answer += chunk;
+            res.write(chunk);
+        }
+        res.end();
+        console.log("RES.END WORKED")
+        console.log("THIS IS THE ANSWER" + answer);
         const aiMessage = await client.message.create({
             data: {
-                content: aiContent,
+                content: answer,
                 conversationId: Number(req.params.conversationId),
                 role: "assistant",
             },
@@ -352,8 +375,6 @@ app.post("/createMessage/:conversationId", authMiddleware, async (req, res, next
         });
 
         console.log("AI message created");
-       
-        return res.json(aiMessage);
     } catch (err) {
         next(err)
     }

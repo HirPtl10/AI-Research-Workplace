@@ -13,8 +13,8 @@ export default function ChatInput({ onCreate, department }) {
         setMessage("")
     }
     return (
-        <div className="shrink-0 border-t border-white/5 px-4 py-4 sm:px-8">
-            <div className="mx-auto flex max-w-3xl items-end gap-2">
+        <div className="shrink-0 border-t border-white/5 bg-[#111111] py-3">
+            <div className="flex w-full items-end gap-2">
                 <input
                     name="message"
                     value={message}

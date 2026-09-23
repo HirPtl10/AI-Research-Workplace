@@ -57,7 +57,7 @@ export default function ProjectPage() {
 
     return (
         <div className="flex h-screen">
-        <aside className="flex h-screen w-72 shrink-0 flex-col bg-[#171717] text-white">
+        <aside className="relative z-20 flex h-screen w-72 shrink-0 flex-col overflow-hidden bg-[#171717] text-white">
 
             {/* Header */}
             <div className="px-4 py-5">
@@ -69,7 +69,7 @@ export default function ProjectPage() {
             <CreateDepartment onCreate={createDepartment} />
             <DepartmentList departments={departmentList} onDelete={deleteDepartment} setSelect={setSelectedDept} selectedDept={selectedDept}/>
         </aside>
-        <main className="flex min-h-0 min-w-0 flex-1 flex-col bg-[#111111]">
+        <main className="flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden bg-[#111111]">
             {selectedDept ? (
                 <ChatRoom department={selectedDept} />
             ) : (
@@ -81,6 +81,7 @@ export default function ProjectPage() {
                 </div>
             )}
         </main>
+        <aside className="hidden h-screen w-80 shrink-0 flex-col overflow-hidden border-l border-white/5 bg-[#171717] lg:flex" />
         </div>
     );
 }
