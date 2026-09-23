@@ -8,8 +8,8 @@ export default function ChatInput({ onCreate, department }) {
         setMessage(value);
     }
 
-    async function handleSubmit() {
-        await onCreate(message, "user", department.conversation.id)
+    async function handleSubmit(msg) {
+        await onCreate(msg, "user", department.conversation.id)
         setMessage("")
     }
     return (
@@ -22,7 +22,9 @@ export default function ChatInput({ onCreate, department }) {
                     onKeyDown={(e) => {
                         if (e.key === "Enter" && !e.shiftKey) {
                             e.preventDefault();
-                            handleSubmit();
+                            let msg = message;
+                            setMessage("")
+                            handleSubmit(msg);
                         }
                     }}
                     placeholder="Write a message..."

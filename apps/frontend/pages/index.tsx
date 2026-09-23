@@ -1,9 +1,17 @@
-export default function Home() {
+// pages/index.js
+import { useRouter } from 'next/router';
+import { useEffect } from 'react';
+
+export default function Page() {
+  const router = useRouter();
+
+  useEffect(() => {
+    router.push('/dashboard');
+  }, []);
+
   return (
-    <html>
-      <body>
-        <h1>Hi</h1>
-      </body>
-    </html>
-  )
+    <button onClick={() => router.push('/dashboard')}>
+      Go to Dashboard
+    </button>
+  );
 }

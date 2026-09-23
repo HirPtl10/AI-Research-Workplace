@@ -9,6 +9,9 @@ import { SignInSchema, SignUpSchema, createProjectSchema, createDepartmentSchema
 import { HandleError } from "./ErrorHandler"
 import { errorHandler } from "./middleware/errorMiddleware"
 import { authMiddleware } from "./middleware/auth"
+import { GoogleGenAI } from "@google/genai"
+import { asyncWrapProviders } from "async_hooks"
+import { generateResponse } from "./generateAI"
 
 const app = express();
 
@@ -247,7 +250,7 @@ app.get("/getDepartments/:projectId", authMiddleware, async (req, res, next) => 
             where: {
                 //@ts-ignore
                 projectId: projectId
-            }, 
+            },
             select: {
                 id: true,
                 name: true,
@@ -266,7 +269,7 @@ app.get("/getDepartments/:projectId", authMiddleware, async (req, res, next) => 
 
 app.delete("/deleteDepartment/:departmentId", authMiddleware, async (req, res, next) => {
     console.log("received req to dlt");
-    let id  = req.params.departmentId;
+    let id = req.params.departmentId;
     console.log(id);
     try {
 
@@ -312,8 +315,8 @@ app.delete("/deleteDepartment/:departmentId", authMiddleware, async (req, res, n
 
 app.post("/createMessage/:conversationId", authMiddleware, async (req, res, next) => {
     console.log("recveived req for creation message")
-    let { success } =  createMessageSchema.safeParse(req.body);
-    if(!success) {
+    let { success } = createMessageSchema.safeParse(req.body);
+    if (!success) {
         throw new HandleError("Invalid message content format", 404);
     }
     try {
@@ -330,20 +333,38 @@ app.post("/createMessage/:conversationId", authMiddleware, async (req, res, next
                 role: true
             }
         })
+        const aiContent = await generateResponse(message.content);
 
-        return res.json(message)
-    } catch(err) {
+        console.log("AI response generated:", aiContent);
+
+        const aiMessage = await client.message.create({
+            data: {
+                content: aiContent,
+                conversationId: Number(req.params.conversationId),
+                role: "assistant",
+            },
+            select: {
+                content: true,
+                id: true,
+                conversationId: true,
+                role: true,
+            },
+        });
+
+        console.log("AI message created");
+       
+        return res.json(aiMessage);
+    } catch (err) {
         next(err)
     }
 })
 
-app.get("/getMessages/:conversationId", authMiddleware, async(req, res, next) => {
-    console.log("HAHAHAHA" + req.params.conversationId);
+app.get("/getMessages/:conversationId", authMiddleware, async (req, res, next) => {
     try {
         let messages = await client.conversation.findUnique({
             where: {
                 id: Number(req.params.conversationId)
-            }, 
+            },
             select: {
                 messages: true
             }

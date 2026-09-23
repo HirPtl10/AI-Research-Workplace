@@ -27,6 +27,7 @@
     "packages/*"
   ],
   "dependencies": {
+    "@google/genai": "^2.24.0",
     "@types/jsonwebtoken": "^9.0.10"
   }
 }
