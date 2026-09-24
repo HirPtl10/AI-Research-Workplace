@@ -1,14 +1,21 @@
 import { useState } from "react"
+import type { Department } from "@repo/common-types"
+import type { Message } from "@repo/common-types"
+type Props = {
+    department: Department
+    onCreate: (message: string, role: "user" | "assistant", conversationId: number | null) => void
+}
 
-export default function ChatInput({ onCreate, department }) {
+export default function ChatInput({ onCreate, department }: Props) {
     let [message, setMessage] = useState("")
 
-    function handleChange(e) {
+    function handleChange(e: React.ChangeEvent<HTMLInputElement>) {
         let value = e.target.value;
         setMessage(value);
     }
 
-    async function handleSubmit(msg) {
+    async function handleSubmit(msg: string) {
+        if(!department.conversation) return;
         await onCreate(msg, "user", department.conversation.id)
         setMessage("")
     }
@@ -41,7 +48,7 @@ export default function ChatInput({ onCreate, department }) {
                     "
                 />
                 <button
-                    onClick={handleSubmit}
+                    onClick={() => handleSubmit(message)}
                     className="
                         shrink-0
                         rounded-xl

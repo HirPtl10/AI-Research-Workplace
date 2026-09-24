@@ -11,7 +11,7 @@ export default function CreateProject({ onCreate }: { onCreate: Function}) {
         setName("");
     }
 
-    function handleChange(e: React.FormEvent) {
+    function handleChange(e: React.ChangeEvent<HTMLInputElement>) {
         let value = e.target.value;
 
         setName(value);

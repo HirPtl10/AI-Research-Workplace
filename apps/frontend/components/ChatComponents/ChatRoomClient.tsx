@@ -3,9 +3,22 @@ import { useEffect, useRef } from "react"
 import ChatInput from "./ChatInput"
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
+import type { Department } from "@repo/common-types";
 
-export default function ChatRoomClient({messages, department, onCreate}) {
-    const scrollRef = useRef(null)
+type Message = {
+    id: number | string,
+    content: string,
+    role: "user" | "assistant"
+}
+
+type Props = {
+    messages:  Message[],
+    department: Department,
+    onCreate: (content: string, role: "user" | "assistant", conversationId: number | null) => Promise<void>
+}
+
+export default function ChatRoomClient({messages, department, onCreate}: Props) {
+    const scrollRef = useRef<HTMLDivElement | null>(null);
     const bottomRef = useRef(null)
 
     useEffect(() => {

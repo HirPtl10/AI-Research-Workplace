@@ -1,6 +1,6 @@
 import { useState } from "react";
 
-export default function CreateDepartment({ onCreate }: {onCreate: Function}) {
+export default function CreateDepartment({ onCreate }: {onCreate: (name: string) => void}) {
     const [name, setName] = useState("");
 
     function handleChange(e: React.ChangeEvent<HTMLInputElement>) {

@@ -1,10 +1,13 @@
-type Department = {
-    id: string,
-    name: string,
-    conversationId: number
+import type { Department as DepartmentType } from "@repo/common-types"
+
+type Props = {
+    department:DepartmentType,
+    onDelete: (id: string) => void,
+    setSelect: (department: DepartmentType) => void,
+    selected: boolean
 }
 
-export default function Department({ department, onDelete, setSelect, selected }: { department: Department, onDelete: Function, setSelect: Function, selected?: boolean }) {
+export default function Department({ department, onDelete, setSelect, selected }: Props) {
 
     return (
         <>

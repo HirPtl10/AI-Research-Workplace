@@ -1,17 +1,19 @@
 import { useEffect, useState } from "react";
 import { api } from "../../lib/api";
 import ChatRoomClient from "./ChatRoomClient";
-type Message = {
-    role: "user" | "assistant",
-    content: string
+import type { Message,Department } from "@repo/common-types";
+type TempMessage = {
+    id: number | string,
+    content: string,
+    role: "user" | "assistant"
 }
-export default function ChatRoom({ department }) {
-    // let [lastMessageId, setLastMessageId] = useState(0);
-    let [messages, setMessages] = useState<Message[]>([]);
+export default function ChatRoom({ department }: {department: Department}) {
+    let [messages, setMessages] = useState<TempMessage[]>([]);
     useEffect(() => {
         fetchMessages()
     }, [department])
     async function fetchMessages() {
+        if(!department.conversation) return;
         try {
             console.log("I want to print this" + department.conversation.id)
             let res = await api.get(`/getMessages/${department.conversation.id}`)
@@ -21,7 +23,7 @@ export default function ChatRoom({ department }) {
         }
     }
 
-    async function createMessage(content, role, conversationId) {
+    async function createMessage(content: string, role: "user" | "assistant", conversationId: number | null) {
         //@ts-ignore
         setMessages(prev => [
             ...prev,
@@ -34,6 +36,7 @@ export default function ChatRoom({ department }) {
         setMessages(prev => [
             ...prev,
             {
+              id: `user-${Date.now()}`,
               role: "assistant",
               content: "",
             },

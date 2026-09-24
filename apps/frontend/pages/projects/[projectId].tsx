@@ -1,9 +1,10 @@
 import { api } from "../../lib/api";
 import { useRouter } from "next/router";
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import CreateDepartment from "../../components/DepartmentComponents/CreateDepartment";
 import DepartmentList from "../../components/DepartmentComponents/DepartmentList";
 import ChatRoom from "../../components/ChatComponents/ChatRoom";
+import { AxiosError } from "axios";
 export default function ProjectPage() {
 
     const router = useRouter();
@@ -25,7 +26,8 @@ export default function ProjectPage() {
         try {
             await api.delete(`deleteDepartment/${id}`);
             setDepartmentList(prev => prev.filter(d => d.id !== id));
-        } catch (err) {
+        } catch (err: unknown) {
+            //@ts-ignore
             console.log(err.response.data.message);
         }
     }

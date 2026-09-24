@@ -3,6 +3,7 @@ import { api } from "../lib/api";
 import { useEffect, useState } from "react";
 import ProjectsList from "../components/ProjectComponents/ProjectsList";
 import CreateProject from "../components/ProjectComponents/CreateProject";
+import type { Project } from "@repo/common-types";
 
 export default function Dashboard() {
     let [projects, setProjects] = useState<Project[]>([]);
@@ -28,7 +29,8 @@ export default function Dashboard() {
                 ...prev,
                 res.data
             ])
-        } catch(err) {
+        } catch(err: unknown) {
+            //@ts-ignore
             console.log(err.response.data.message);
         } 
     }
