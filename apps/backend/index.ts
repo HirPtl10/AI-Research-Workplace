@@ -76,6 +76,7 @@ app.post("/signup", async (req, res, next) => {
         next(e);
     }
 });
+
 app.post("/signin", async (req, res, next) => {
     try {
         let { success } = SignInSchema.safeParse(req.body);
@@ -173,6 +174,12 @@ app.post("/createProject", authMiddleware, async (req, res) => {
                 name: "General",
                 projectId: newProject.id,
                 isGeneral: true
+            }
+        })
+
+        let newConversation = await client.conversation.create({
+            data: {
+                departmentId: generelDept.id
             }
         })
 

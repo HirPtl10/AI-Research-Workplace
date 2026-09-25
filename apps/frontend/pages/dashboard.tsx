@@ -35,11 +35,19 @@ export default function Dashboard() {
         } 
     }
     return (
-        <>
-        <div className="projects">
-            <CreateProject onCreate={newProject} /> 
-            <ProjectsList projects={projects} />
+        <div className="min-h-screen bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100 p-4 sm:p-8">
+            <div className="max-w-6xl mx-auto space-y-8">
+                <header className="flex flex-col gap-2">
+                    <h1 className="text-4xl font-extrabold tracking-tight">Dashboard</h1>
+                    <p className="text-gray-500 dark:text-gray-400">Manage your projects and workspaces.</p>
+                </header>
+                <div className="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700">
+                    <CreateProject onCreate={newProject} /> 
+                </div>
+                <div>
+                    <ProjectsList projects={projects} />
+                </div>
+            </div>
         </div>
-        </>
     )
 }
