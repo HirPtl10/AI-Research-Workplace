@@ -4,13 +4,19 @@ import React, { useEffect, useState } from "react";
 import CreateDepartment from "../../components/DepartmentComponents/CreateDepartment";
 import DepartmentList from "../../components/DepartmentComponents/DepartmentList";
 import ChatRoom from "../../components/ChatComponents/ChatRoom";
-import { AxiosError } from "axios";
+import axios, { AxiosError } from "axios";
+import ErrorComponent from "../../components/Error/ErrorComponent";
 export default function ProjectPage() {
 
     const router = useRouter();
     const { projectId } = router.query;
     const [departmentList, setDepartmentList] = useState<any[]>([]);
     const [selectedDept, setSelectedDept] = useState<any>(null);
+    const [error, setError] = useState({
+        exsist: false,
+        statusCode: 200,
+        message: ""
+    });
 
     async function getDepartment() {
         try {
@@ -18,7 +24,13 @@ export default function ProjectPage() {
             setDepartmentList(res.data);
             console.log(res);
         } catch (err) {
-            console.log(err);
+            if (axios.isAxiosError(err)) {
+                setError({
+                    exsist: true,
+                    statusCode: err.response?.status || 500,
+                    message: err.response?.data.message || "Something went wrong, Please try again later"
+                })
+              }
         }
     }
     async function deleteDepartment(id: string) {
@@ -27,8 +39,9 @@ export default function ProjectPage() {
             await api.delete(`deleteDepartment/${id}`);
             setDepartmentList(prev => prev.filter(d => d.id !== id));
         } catch (err: unknown) {
-            //@ts-ignore
-            console.log(err.response.data.message);
+            if (axios.isAxiosError(err)) {
+                console.log(err.response?.data?.message);
+              }
         }
     }
 
@@ -57,6 +70,15 @@ export default function ProjectPage() {
         getDepartment();
     }, [router.isReady, projectId]);
 
+
+    if(error.exsist) {
+        return (
+            <ErrorComponent
+              statusCode={error.statusCode}
+              message={error.message }
+            />
+          );
+    }
     return (
         <div className="flex h-screen">
         <aside className="relative z-20 flex h-screen w-72 shrink-0 flex-col overflow-hidden bg-[#171717] text-white">

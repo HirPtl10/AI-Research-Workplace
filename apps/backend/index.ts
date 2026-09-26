@@ -1,17 +1,18 @@
-import express from "express"
-import cors from "cors"
-import methodOverride from "method-override"
-import bcrypt from "bcrypt"
-import jwt from "jsonwebtoken"
-import { client } from "@repo/db"
-import cookieParser from "cookie-parser"
-import { SignInSchema, SignUpSchema, createProjectSchema, createDepartmentSchema, createMessageSchema } from "@repo/common-types"
-import { HandleError } from "./ErrorHandler"
-import { errorHandler } from "./middleware/errorMiddleware"
-import { authMiddleware } from "./middleware/auth"
-import { Ollama } from 'ollama'
-import { asyncWrapProviders } from "async_hooks"
-// import { generateResponse } from "./generateAI"
+import express from "express";
+import cors from "cors";
+import methodOverride from "method-override";
+import bcrypt from "bcrypt";
+import jwt from "jsonwebtoken";
+import { client } from "@repo/db";
+import cookieParser from "cookie-parser";
+import { SignInSchema, SignUpSchema, createProjectSchema, createDepartmentSchema, createMessageSchema } from "@repo/common-types";
+import { HandleError } from "./ErrorHandler";
+import { errorHandler } from "./middleware/errorMiddleware";
+import { authMiddleware } from "./middleware/auth";
+import { Ollama } from 'ollama';
+import { asyncWrapProviders } from "async_hooks";
+// import { generateResponse } from "./generateAI";
+import { projectAuth } from "./middleware/projectAuth";
 
 const app = express();
 
@@ -212,7 +213,7 @@ app.get("/getProjects", authMiddleware, async (req, res, next) => {
     }
 })
 
-app.post("/createDepartment/:projectId", authMiddleware, async (req, res) => {
+app.post("/createDepartment/:projectId", authMiddleware, projectAuth,  async (req, res, next) => {
 
     let projectId = req.params.projectId;
     let name = req.body.name;
@@ -249,7 +250,7 @@ app.post("/createDepartment/:projectId", authMiddleware, async (req, res) => {
     }
 })
 
-app.get("/getDepartments/:projectId", authMiddleware, async (req, res, next) => {
+app.get("/getDepartments/:projectId", authMiddleware, projectAuth, async (req, res, next) => {
     try {
         let projectId = req.params.projectId;
 
