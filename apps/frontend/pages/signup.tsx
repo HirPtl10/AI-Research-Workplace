@@ -1,5 +1,6 @@
 import axios from "axios";
 import { useState } from "react";
+import Link from "next/link";
 
 export default function Signup() {
     let [formData, setFormData] = useState({
@@ -35,20 +36,20 @@ export default function Signup() {
 };
     return (
         <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-900 px-4">
-            <div className="max-w-md w-full bg-white dark:bg-gray-800 rounded-xl shadow-md p-8 space-y-6">
+            <div className="max-w-md w-full bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-200 dark:border-gray-700 p-8 space-y-6">
                 <div className="text-center">
                     <h2 className="text-3xl font-extrabold text-gray-900 dark:text-white">Sign Up</h2>
-                    <p className="mt-2 text-sm text-gray-600 dark:text-gray-400">Create a new account</p>
+                    <p className="mt-2 text-sm text-gray-600 dark:text-gray-400">Create a new account on AI Workplace</p>
                 </div>
                 <form onSubmit={handleSubmit} className="space-y-4"> 
                     <div>
-                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Name</label>
+                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Username</label>
                         <input 
                             name="username" 
                             value={formData.username} 
                             placeholder="Enter username" 
                             onChange={handleChange}
-                            className="mt-1 block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                            className="mt-1 block w-full px-3.5 py-2.5 border border-gray-300 dark:border-gray-600 rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
                         />
                     </div>
                     <div>
@@ -59,7 +60,7 @@ export default function Signup() {
                             value={formData.password} 
                             placeholder="Enter password" 
                             onChange={handleChange}
-                            className="mt-1 block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                            className="mt-1 block w-full px-3.5 py-2.5 border border-gray-300 dark:border-gray-600 rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
                         />
                     </div>
                     {data && (
@@ -69,11 +70,17 @@ export default function Signup() {
                     )}
                     <button 
                         type="submit"
-                        className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+                        className="w-full flex justify-center py-2.5 px-4 border border-transparent rounded-xl shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors"
                     >
                         Sign Up
                     </button>
                 </form>
+                <div className="text-center pt-2 text-sm text-gray-600 dark:text-gray-400">
+                    Already have an account?{" "}
+                    <Link href="/signin" className="font-semibold text-blue-600 dark:text-blue-400 hover:underline">
+                        Sign In
+                    </Link>
+                </div>
             </div>
         </div>
     )

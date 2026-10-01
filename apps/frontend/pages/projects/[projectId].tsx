@@ -12,6 +12,7 @@ export default function ProjectPage() {
     const { projectId } = router.query;
     const [departmentList, setDepartmentList] = useState<any[]>([]);
     const [selectedDept, setSelectedDept] = useState<any>(null);
+    const [isSidebarOpen, setIsSidebarOpen] = useState(false);
     const [error, setError] = useState({
         exsist: false,
         statusCode: 200,
@@ -80,32 +81,98 @@ export default function ProjectPage() {
           );
     }
     return (
-        <div className="flex h-screen">
-        <aside className="relative z-20 flex h-screen w-72 shrink-0 flex-col overflow-hidden bg-[#171717] text-white">
-
-            {/* Header */}
-            <div className="px-4 py-5">
-                <h1 className="text-lg font-semibold">
-                    Departments
-                </h1>
-            </div>
-
-            <CreateDepartment onCreate={createDepartment} />
-            <DepartmentList departments={departmentList} onDelete={deleteDepartment} setSelect={setSelectedDept} selectedDept={selectedDept}/>
-        </aside>
-        <main className="flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden bg-[#111111]">
-            {selectedDept ? (
-                <ChatRoom department={selectedDept} />
-            ) : (
-                <div className="flex h-full flex-col items-center justify-center px-6 text-center">
-                    <p className="text-base font-medium text-gray-200">Select a department</p>
-                    <p className="mt-1 max-w-sm text-sm text-gray-500">
-                        Choose a department from the sidebar to open its conversation.
-                    </p>
-                </div>
+        <div className="flex h-screen bg-[#111111] overflow-hidden">
+            {/* Mobile backdrop */}
+            {isSidebarOpen && (
+                <div 
+                    onClick={() => setIsSidebarOpen(false)}
+                    className="fixed inset-0 z-20 bg-black/60 backdrop-blur-sm lg:hidden"
+                />
             )}
-        </main>
-        <aside className="hidden h-screen w-80 shrink-0 flex-col overflow-hidden border-l border-white/5 bg-[#171717] lg:flex" />
+
+            {/* Sidebar */}
+            <aside 
+                className={`
+                    fixed inset-y-0 left-0 z-30 flex h-full w-72 flex-col bg-[#171717] border-r border-white/5 text-white transition-transform duration-300 ease-in-out
+                    lg:static lg:translate-x-0
+                    ${isSidebarOpen ? "translate-x-0" : "-translate-x-full"}
+                `}
+            >
+                {/* Sidebar Header */}
+                <div className="flex items-center justify-between px-4 py-4 border-b border-white/5">
+                    <div className="flex items-center gap-2">
+                        <button 
+                            onClick={() => router.push("/dashboard")}
+                            title="Back to Dashboard"
+                            className="p-1.5 rounded-lg text-gray-400 hover:text-white hover:bg-white/10 transition-colors"
+                        >
+                            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+                            </svg>
+                        </button>
+                        <h1 className="text-base font-semibold truncate">Departments</h1>
+                    </div>
+                    <button 
+                        onClick={() => setIsSidebarOpen(false)}
+                        className="p-1.5 rounded-lg text-gray-400 hover:text-white hover:bg-white/10 lg:hidden"
+                    >
+                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                    </button>
+                </div>
+
+                <div className="p-3">
+                    <CreateDepartment onCreate={createDepartment} />
+                </div>
+                <DepartmentList 
+                    departments={departmentList} 
+                    onDelete={deleteDepartment} 
+                    setSelect={(dept) => {
+                        setSelectedDept(dept);
+                        setIsSidebarOpen(false);
+                    }} 
+                    selectedDept={selectedDept}
+                />
+            </aside>
+
+            {/* Main Area */}
+            <main className="flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden bg-[#111111]">
+                {/* Mobile Top bar */}
+                <div className="flex items-center justify-between border-b border-white/5 bg-[#171717] px-4 py-3 lg:hidden">
+                    <button 
+                        onClick={() => setIsSidebarOpen(true)}
+                        className="flex items-center gap-2 text-sm text-gray-300 hover:text-white p-1 rounded-lg hover:bg-white/5"
+                    >
+                        <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6h16M4 12h16M4 18h16" />
+                        </svg>
+                        <span>Departments</span>
+                    </button>
+                    <button 
+                        onClick={() => router.push("/dashboard")}
+                        className="text-xs text-gray-400 hover:text-white transition-colors"
+                    >
+                        Dashboard &rarr;
+                    </button>
+                </div>
+
+                {selectedDept ? (
+                    <ChatRoom department={selectedDept} />
+                ) : (
+                    <div className="flex h-full flex-col items-center justify-center px-6 text-center">
+                        <div className="mb-4 p-4 rounded-2xl bg-[#171717] border border-white/5 text-blue-500 shadow-xl">
+                            <svg className="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+                            </svg>
+                        </div>
+                        <p className="text-base font-medium text-gray-200">Select a department</p>
+                        <p className="mt-1 max-w-sm text-sm text-gray-500">
+                            Choose a department from the sidebar to open its chat room and collaborate.
+                        </p>
+                    </div>
+                )}
+            </main>
         </div>
     );
 }

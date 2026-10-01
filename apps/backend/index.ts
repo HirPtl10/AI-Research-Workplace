@@ -213,6 +213,24 @@ app.get("/getProjects", authMiddleware, async (req, res, next) => {
     }
 })
 
+app.delete("/delProject/:id", authMiddleware, async (req, res) => {
+    let id = req.params.id;
+
+    try {
+       await client.project.delete({
+            where: {
+                id: id
+            }
+        })
+        
+        return res.json({
+            message: `Successfully deleted the project`
+        })
+    } catch(err) {
+        console.log(err);
+    }
+})
+
 app.post("/createDepartment/:projectId", authMiddleware, projectAuth,  async (req, res, next) => {
 
     let projectId = req.params.projectId;

@@ -1,7 +1,7 @@
-"use client"
 import { useState } from "react"
 import axios from "axios";
 import { useRouter } from "next/router";
+import Link from "next/link";
 
 export default function Signin() {
     let router = useRouter();
@@ -42,10 +42,10 @@ export default function Signin() {
 
     return (
         <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-900 px-4">
-            <div className="max-w-md w-full bg-white dark:bg-gray-800 rounded-xl shadow-md p-8 space-y-6">
+            <div className="max-w-md w-full bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-200 dark:border-gray-700 p-8 space-y-6">
                 <div className="text-center">
                     <h2 className="text-3xl font-extrabold text-gray-900 dark:text-white">Sign In</h2>
-                    <p className="mt-2 text-sm text-gray-600 dark:text-gray-400">Welcome back to your account</p>
+                    <p className="mt-2 text-sm text-gray-600 dark:text-gray-400">Welcome back to AI Workplace</p>
                 </div>
                 <form onSubmit={handleSubmit} className="space-y-4">
                     <div>
@@ -54,7 +54,7 @@ export default function Signin() {
                             name="username" 
                             value={data.username} 
                             onChange={handleChange}
-                            className="mt-1 block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                            className="mt-1 block w-full px-3.5 py-2.5 border border-gray-300 dark:border-gray-600 rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
                             placeholder="Enter username"
                         />
                     </div>
@@ -65,7 +65,7 @@ export default function Signin() {
                             name="password" 
                             value={data.password} 
                             onChange={handleChange}
-                            className="mt-1 block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                            className="mt-1 block w-full px-3.5 py-2.5 border border-gray-300 dark:border-gray-600 rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
                             placeholder="Enter password"
                         />
                     </div>
@@ -76,11 +76,17 @@ export default function Signin() {
                     )}
                     <button 
                         type="submit"
-                        className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+                        className="w-full flex justify-center py-2.5 px-4 border border-transparent rounded-xl shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors"
                     >
                         Sign In
                     </button>
                 </form>
+                <div className="text-center pt-2 text-sm text-gray-600 dark:text-gray-400">
+                    Don&apos;t have an account?{" "}
+                    <Link href="/signup" className="font-semibold text-blue-600 dark:text-blue-400 hover:underline">
+                        Sign Up
+                    </Link>
+                </div>
             </div>
         </div>
     )
