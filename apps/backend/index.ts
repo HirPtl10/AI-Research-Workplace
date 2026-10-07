@@ -214,7 +214,7 @@ app.get("/getProjects", authMiddleware, async (req, res, next) => {
 })
 
 app.delete("/delProject/:id", authMiddleware, async (req, res) => {
-    let id = req.params.id;
+    let id: any = req.params.id;
 
     try {
        await client.project.delete({
@@ -359,11 +359,15 @@ app.post("/createMessage/:conversationId", authMiddleware, async (req, res, next
                 role: true
             }
         })
-
+        let messages = await client.message.findMany({
+            where: {
+                conversationId: Number(req.params.conversationId)
+            },
+            orderBy: {
+                createdAt: "asc"
+            }
+        })
         console.log("MESSAGE CREATED")
-        // const aiContent = await generateResponse(message.content);
-
-        // console.log("AI response generated:", aiContent);
 
         const ollama = new Ollama({
             host: 'https://ollama.com',
@@ -372,7 +376,10 @@ app.post("/createMessage/:conversationId", authMiddleware, async (req, res, next
 
         const response = await ollama.chat({
             model: 'gpt-oss:20b',
-            messages: [{ role: 'user', content: message.content }],
+            messages: messages.map(m => ({
+                role: m.role,
+                content: m.content
+            })),
             stream: true,
         })
         res.setHeader("Content-Type", "text/plain; charset=utf-8");
