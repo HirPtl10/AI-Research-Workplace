@@ -340,6 +340,7 @@ app.delete("/deleteDepartment/:departmentId", authMiddleware, async (req, res, n
 })
 
 app.post("/createMessage/:conversationId", authMiddleware, async (req, res, next) => {
+    let conversationId = Number(req.params.conversationId);
     console.log("recveived req for creation message")
     let { success } = createMessageSchema.safeParse(req.body);
     if (!success) {
@@ -349,7 +350,7 @@ app.post("/createMessage/:conversationId", authMiddleware, async (req, res, next
         let message = await client.message.create({
             data: {
                 content: req.body.content,
-                conversationId: Number(req.params.conversationId),
+                conversationId: conversationId,
                 role: req.body.role
             },
             select: {
@@ -359,16 +360,27 @@ app.post("/createMessage/:conversationId", authMiddleware, async (req, res, next
                 role: true
             }
         })
-        let messages = await client.message.findMany({
+        // let messages = await client.message.findMany({
+        //     where: {
+        //         conversationId: Number(req.params.conversationId)
+        //     },
+        //     orderBy: {
+        //         createdAt: "asc"
+        //     }
+        // })
+        // console.log("MESSAGE CREATED")
+
+        let conversation = await client.conversation.findUnique({
             where: {
-                conversationId: Number(req.params.conversationId)
+                id: conversationId
             },
-            orderBy: {
-                createdAt: "asc"
+            include: {
+                messages: true
             }
         })
-        console.log("MESSAGE CREATED")
 
+        let messages = conversation.messages;
+        
         const ollama = new Ollama({
             host: 'https://ollama.com',
             headers: { Authorization: 'Bearer ' + process.env.OLLAMA_API_KEY },
